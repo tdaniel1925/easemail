@@ -4,7 +4,7 @@ import { nylasClient } from '@/lib/nylas/client'
 export async function GET() {
   try {
     const config = {
-      clientId: process.env.NYLAS_API_KEY!,
+      clientId: process.env.NYLAS_CLIENT_ID!,
       redirectUri: `${process.env.NEXT_PUBLIC_APP_URL}/api/nylas/callback`,
       // You can add provider: 'google' or 'microsoft' to pre-select
       scopes: [

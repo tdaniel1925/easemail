@@ -22,9 +22,10 @@ import {
   LogOut,
   Menu,
   ChevronDown,
+  Plus,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 
 interface HeaderProps {
@@ -33,9 +34,13 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const supabase = createClient()
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
+
+  // Check if we're on the emails page
+  const isEmailsPage = pathname === '/dashboard/emails'
 
   useEffect(() => {
     const getUser = async () => {
@@ -59,6 +64,14 @@ export function Header({ onMenuClick }: HeaderProps) {
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
+  }
+
+  const handleAddAccount = () => {
+    router.push('/api/nylas/auth')
+  }
+
+  const handleManageAccounts = () => {
+    router.push('/dashboard/email-accounts')
   }
 
   return (
@@ -93,6 +106,19 @@ export function Header({ onMenuClick }: HeaderProps) {
 
         {/* Right side icons - all in a row */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Add Account Button - Only show on emails page */}
+          {isEmailsPage && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 hidden lg:flex"
+              onClick={handleAddAccount}
+            >
+              <Plus className="h-4 w-4" />
+              Add Account
+            </Button>
+          )}
+
           {/* Bell Icon with badge */}
           <Button variant="ghost" size="icon" className="h-9 w-9 relative hidden lg:flex">
             <Bell className="h-5 w-5" />

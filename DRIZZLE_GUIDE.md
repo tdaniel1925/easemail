@@ -291,3 +291,4 @@ After applying the initial migration:
 3. Try Drizzle Studio: `npm run db:studio`
 4. Start building Phase 2 features with type-safe queries!
 
+

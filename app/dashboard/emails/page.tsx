@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ComposeEmailModal } from "@/components/email/ComposeEmailModal"
 import { EmailSidebar } from "@/components/email/EmailSidebar"
 import { ResizableSidebar } from "@/components/ui/resizable-sidebar"
+import { FolderSyncConfigModal } from "@/components/email/FolderSyncConfigModal"
 import {
   Mail,
   Send,
@@ -122,6 +124,7 @@ const mockContacts = [
 ]
 
 export default function EmailsPage() {
+  const searchParams = useSearchParams()
   const [composeOpen, setComposeOpen] = useState(false)
   const [selectedFolder, setSelectedFolder] = useState("inbox")
   const [selectedTab, setSelectedTab] = useState("important")
@@ -132,6 +135,29 @@ export default function EmailsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [middleSidebarCollapsed, setMiddleSidebarCollapsed] = useState(false)
   const totalPages = 4
+
+  // Folder sync config modal state
+  const [showSyncConfig, setShowSyncConfig] = useState(false)
+  const [syncConfigAccountId, setSyncConfigAccountId] = useState("")
+  const [syncConfigEmail, setSyncConfigEmail] = useState("")
+
+  // Check for sync config trigger from OAuth callback
+  useEffect(() => {
+    const shouldShowConfig = searchParams.get('show_sync_config') === 'true'
+    const accountId = searchParams.get('account_id') || ''
+    const email = searchParams.get('email') || ''
+
+    if (shouldShowConfig && accountId) {
+      setShowSyncConfig(true)
+      setSyncConfigAccountId(accountId)
+      setSyncConfigEmail(decodeURIComponent(email))
+
+      // Clear URL params after reading
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({}, '', '/dashboard/emails')
+      }
+    }
+  }, [searchParams])
 
   const folders = [
     { id: "inbox", name: "Inbox", icon: Mail, color: "text-primary" },
@@ -523,6 +549,14 @@ export default function EmailsPage() {
 
       {/* Compose Email Modal */}
       <ComposeEmailModal open={composeOpen} onOpenChange={setComposeOpen} />
+
+      {/* Folder Sync Config Modal */}
+      <FolderSyncConfigModal
+        open={showSyncConfig}
+        onClose={() => setShowSyncConfig(false)}
+        accountId={syncConfigAccountId}
+        accountEmail={syncConfigEmail}
+      />
     </div>
   )
 }

@@ -16,6 +16,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Settings,
 } from "lucide-react"
 
 interface SidebarProps {
@@ -27,6 +28,7 @@ interface SidebarProps {
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Email", href: "/dashboard/emails", icon: Mail, badge: "38" },
+  { name: "Email Accounts", href: "/dashboard/email-accounts", icon: Settings },
   { name: "Contacts", href: "/dashboard/contacts", icon: Users },
   { name: "Calendar", href: "/dashboard/calendar", icon: Calendar },
   { name: "Messages", href: "/dashboard/messages", icon: MessageSquare },

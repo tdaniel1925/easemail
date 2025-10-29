@@ -133,3 +133,4 @@ GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT ALL ON public.profiles TO anon, authenticated;
 GRANT ALL ON public.usernames TO anon, authenticated;
 
+
