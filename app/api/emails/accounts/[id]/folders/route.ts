@@ -26,12 +26,25 @@ export async function GET(
       return NextResponse.json({ error: 'Account not found' }, { status: 404 })
     }
 
-    // Fetch folders from Nylas
-    const response = await nylasClient.folders.list({
-      identifier: account.grant_id
-    })
+    // Fetch ALL folders from Nylas (with pagination)
+    let allFolders: any[] = []
+    let pageToken: string | undefined = undefined
+    
+    do {
+      const response = await nylasClient.folders.list({
+        identifier: account.grant_id,
+        queryParams: {
+          limit: 200, // Max per request
+          pageToken: pageToken
+        }
+      })
 
-    const folders = response.data.map(folder => ({
+      allFolders = allFolders.concat(response.data)
+      pageToken = response.nextCursor
+      
+    } while (pageToken)
+
+    const folders = allFolders.map(folder => ({
       id: folder.id,
       name: folder.name,
       displayName: folder.displayName || folder.name,
@@ -40,6 +53,8 @@ export async function GET(
       totalCount: folder.totalCount || 0,
       unreadCount: folder.unreadCount || 0
     }))
+
+    console.log(`Fetched ${folders.length} total folders for account ${account.email_address}`)
 
     return NextResponse.json({ folders })
   } catch (error: any) {

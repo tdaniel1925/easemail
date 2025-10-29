@@ -32,18 +32,33 @@ export async function syncFoldersFromServer(
   try {
     const supabase = await createClient()
 
-    // Fetch folders from Nylas
-    const response = await nylasClient.folders.list({
-      identifier: grantId
-    })
+    // Fetch ALL folders from Nylas (with pagination)
+    let allFolders: any[] = []
+    let pageToken: string | undefined = undefined
+    
+    do {
+      const response = await nylasClient.folders.list({
+        identifier: grantId,
+        queryParams: {
+          limit: 200, // Max per request
+          pageToken: pageToken
+        }
+      })
 
-    if (!response.data || response.data.length === 0) {
+      allFolders = allFolders.concat(response.data)
+      pageToken = response.nextCursor
+      
+    } while (pageToken)
+
+    if (!allFolders || allFolders.length === 0) {
       console.log('No folders found for account:', accountId)
       return
     }
 
+    console.log(`Syncing ${allFolders.length} folders for account ${accountId}`)
+
     // Process and categorize folders
-    const folderMappings = response.data.map(folder => {
+    const folderMappings = allFolders.map(folder => {
       const folderType = categorizeFolder(folder.attributes || [])
       const isSystem = folderType === 'system'
 
